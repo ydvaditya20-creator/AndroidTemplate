@@ -1,4 +1,4 @@
-package com.example.mobileapp; // अपना पुराना पैकेज नाम ही रहने दें
+package com.templateapplication;
 
 import android.app.Activity;
 import android.content.Context;
@@ -11,6 +11,7 @@ import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.Button;
 import android.widget.LinearLayout;
+import android.widget.Toast;
 import com.templateapplication.R;
 
 public class MainActivity extends Activity {
@@ -22,51 +23,68 @@ public class MainActivity extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        
+        try {
+            setContentView(R.layout.activity_main);
 
-        // व्यूज को ढूंढना
-        myWebView = findViewById(R.id.myWebView);
-        errorLayout = findViewById(R.id.errorLayout);
-        btnRetry = findViewById(R.id.btnRetry);
+            // व्यूज को ढूंढना
+            myWebView = findViewById(R.id.myWebView);
+            errorLayout = findViewById(R.id.errorLayout);
+            btnRetry = findViewById(R.id.btnRetry);
 
-        // वेबव्यू सेटिंग्स कॉन्फ़िगर करना
-        WebSettings webSettings = myWebView.getSettings();
-        webSettings.setJavaScriptEnabled(true);
-        webSettings.setDomStorageEnabled(true); // iframe लोड करने के लिए ज़रूरी
-        myWebView.setWebViewClient(new WebViewClient());
-
-        // ऐप खुलते ही पहली बार इंटरनेट चेक करना
-        checkAndLoadApp();
-
-        // रीट्राई बटन पर क्लिक करने का लॉजिक
-        btnRetry.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                checkAndLoadApp();
+            // सुरक्षित वेबव्यू सेटिंग्स
+            if (myWebView != null) {
+                WebSettings webSettings = myWebView.getSettings();
+                webSettings.setJavaScriptEnabled(true);
+                webSettings.setDomStorageEnabled(true);
+                myWebView.setWebViewClient(new WebViewClient());
             }
-        });
-    }
 
-    // इंटरनेट चेक करके स्क्रीन दिखाने वाला फंक्शन
-    private void checkAndLoadApp() {
-        if (isInternetConnected()) {
-            // नेट चालू है: एरर छुपाओ, वेबव्यू दिखाओ और HTML लोड करो
-            errorLayout.setVisibility(View.GONE);
-            myWebView.setVisibility(View.VISIBLE);
-            myWebView.loadUrl("file:///android_asset/index.html");
-        } else {
-            // नेट बंद है: वेबव्यू छुपाओ, एरर स्क्रीन दिखाओ
-            myWebView.setVisibility(View.GONE);
-            errorLayout.setVisibility(View.VISIBLE);
+            // ऐप लोड करना
+            checkAndLoadApp();
+
+            // रीट्राई बटन का लॉजिक
+            if (btnRetry != null) {
+                btnRetry.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        checkAndLoadApp();
+                    }
+                });
+            }
+            
+        } catch (Exception e) {
+            // अगर कोई गंभीर एरर आए तो ऐप बंद होने के बजाय छोटा मैसेज दिखेगा
+            Toast.makeText(this, "Error starting app: " + e.getMessage(), Toast.LENGTH_LONG).show();
         }
     }
 
-    // इंटरनेट कनेक्शन जांचने का फंक्शन
+    private void checkAndLoadApp() {
+        try {
+            if (isInternetConnected()) {
+                if (errorLayout != null) errorLayout.setVisibility(View.GONE);
+                if (myWebView != null) {
+                    myWebView.setVisibility(View.VISIBLE);
+                    myWebView.loadUrl("file:///android_asset/index.html");
+                }
+            } else {
+                if (myWebView != null) myWebView.setVisibility(View.GONE);
+                if (errorLayout != null) errorLayout.setVisibility(View.VISIBLE);
+            }
+        } catch (Exception e) {
+            Toast.makeText(this, "Load Error: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+        }
+    }
+
     private boolean isInternetConnected() {
-        ConnectivityManager cm = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
-        if (cm != null) {
-            NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
-            return activeNetwork != null && activeNetwork.isConnectedOrConnecting();
+        try {
+            ConnectivityManager cm = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+            if (cm != null) {
+                NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
+                return activeNetwork != null && activeNetwork.isConnectedOrConnecting();
+            }
+        } catch (Exception e) {
+            return false;
         }
         return false;
     }
