@@ -3,14 +3,12 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <!-- नेट ऑन होने पर यह दिखेगा -->
     <WebView
         android:id="@+id/myWebView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:visibility="gone" />
 
-    <!-- नेट ऑफ होने पर यह एरर स्क्रीन दिखेगी -->
     <LinearLayout
         android:id="@+id/errorLayout"
         android:layout_width="match_parent"
@@ -28,14 +26,6 @@
             android:textColor="#FF0000"
             android:textStyle="bold"
             android:layout_marginBottom="10dp" />
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="कृपया अपना मोबाइल डेटा या वाई-फाई चालू करें।"
-            android:textSize="16sp"
-            android:layout_marginBottom="20dp"
-            android:textAlignment="center" />
 
         <Button
             android:id="@+id/btnRetry"
